@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Search Picture App</title>
+        <link rel="stylesheet" href="./css/main.css">
+        <!-- <link rel="stylesheet" href="./css/grid.css">         -->
+        <link rel="stylesheet" href="./Fonts/themify-icons/themify-icons.css">
+    </head>
+    <body>
+        <div class="app">
+            <form action="" class="form-search" onsubmit="event.defaultPrevented()">
+                <label for="search" class="form-search__label">
+                    <Span class="form-search__label-span">U</Span>
+                    <Span class="form-search__label-span">N</Span>
+                    <Span class="form-search__label-span">P</Span>
+                    <Span class="form-search__label-span">L</Span>
+                    <Span class="form-search__label-span">A</Span>
+                    <Span class="form-search__label-span">S</Span>
+                    <Span class="form-search__label-span">H</Span>
+                </label>
+                <div class="form-search__container">
+                    <div class="form-search__input-wrap">
+                        <span class="form-search__input-icon">
+                            <i class="ti-search"></i>
+                        </span>
+                        <input type="text" placeholder="Please enter something..." 
+                            class="form-search__input" id="search"
+                            onkeyup="event.keyCode === 13 && searchPhotos()"
+                        >
+                    </div>
+                    <button onclick="searchPhotos()" class="search-button">Search</button>
+                </div>
+            </form>
+            <div class="view">
+                <div class="title"></div>
+                <div class="wrapper" id="wrapper">
+                    
+                </div>
+            </div>
+        </div>
+
+
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+        <script src="./js/app.js"></script>
+    </body>
+</html>
