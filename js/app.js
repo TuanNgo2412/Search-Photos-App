@@ -1,13 +1,19 @@
 const $ = document.querySelector.bind(document);
 const clientId = 'SQt_5WRrkxVTF64nvVF-_ojPIbrE4KvTVojZybUNl4c';
+const html = $('html');
 const formElement = $('.form-search');
-const photosWrapper = $('.wrapper');
-const title = $('.title');
+const input = $('#search');
+const searchButton = $('.search-button')
 const message = $('.message');
-let page = 1;
+const view = $('.view');
+const title = $('.title');
+const photosWrapper = $('.wrapper');
+ 
 
 const app = {
-    // Function for loading progress when user access website or search photos
+    page: 1,
+    isScroll: false,
+    // Loading bar function when waiting call api
     loadingBar() {
         let i = 0;
         if (i === 0) {
@@ -19,6 +25,7 @@ const app = {
                 if (width >= 100) {
                     clearInterval(run);
                     i = 0;
+                    percent.style.width = 0;
                 } else {
                     width++;
                     percent.style.width = width + '%';
@@ -26,61 +33,109 @@ const app = {
             }
         }
     },
-    // Function for handle the api and load photos
-    handleAPI(data) {
+    removeContent() {
+        photosWrapper.innerHTML = '';
+    },
+    async renderPhotos() {
+        let photos;
+        // Statement for handle render photos when user access page or search keyword
+        if ((this.searchPhotos())[0] !== '') {
+            if (this.isScroll) {
+                const data = await this.callSearchAPI();
+                photos = data.results;
+                title.innerHTML = (this.searchPhotos())[0];
+            } else {
+                this.removeContent();
+                const data = await this.callSearchAPI();
+                photos = data.results;
+                title.innerHTML = (this.searchPhotos())[0];
+                this.isScroll = true;
+            }
+        } else {
+            if (this.isScroll) {
+                photos = await this.callGetListAPI();
+            } else {
+                this.removeContent();
+                title.innerHTML = '';
+                photos = await this.callGetListAPI();
+                this.isScroll = true;
+            }
+        }
+
+        this.loadingBar();
         const arrayImage = [];
-        data.forEach(photo => {
+        photos.forEach(photo => {
             arrayImage[photo] = document.createElement('img');
             arrayImage[photo].className = 'img';
             arrayImage[photo].src = `${photo.urls.regular}`;
             photosWrapper.appendChild(arrayImage[photo]);
         })
     },
-    // Load the initial list photos when access page
+    // Function for call get list API
+    async callGetListAPI() {
+        const url = await this.getPhotos();
+
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    },
+    // Function for call search API
+    async callSearchAPI() {
+        const url = await (this.searchPhotos())[1];
+
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    },
+    // Function for transmission get list api 
     getPhotos() {
-        const getAPI = 'https://api.unsplash.com/photos?client_id=' 
-        + clientId + '&page=' + page + '&per_page=10';
-        
-        this.loadingBar();
-        fetch(getAPI)
-                .then(res => res.json())
-                .then(data => {
-                    this.handleAPI(data);
-                })
+        const getAPI = `https://api.unsplash.com/photos?client_id=${clientId}&page=${this.page}&per_page=10`;
+
+        return getAPI;
     },
-    removePhotos() {
-        photosWrapper.innerHTML = '';
-    },
-    // Get value from input and reload the photos
+    // Function for transmission search api
     searchPhotos() {
-        // let page = 1000;
-        const query = $('#search').value;   
-        const searchAPI = 'https://api.unsplash.com/search/photos/?client_id=' 
-        + clientId + '&query=' + query + '&page=' + page + '&per_page=10';
+        const query = $('#search').value;
+        const searchAPI = `https://api.unsplash.com/search/photos/?client_id=${clientId}&query=${query}&page=${this.page}&per_page=10`;
         
-        this.loadingBar();
-        this.removePhotos();
-        fetch(searchAPI)
-                .then(res => res.json())
-                .then(data => {
-                    let newData = data.results;
-                    title.innerHTML = query;
-                    this.handleAPI(newData);                  
-                })
+        return [query, searchAPI];
     },
-    handleLoadMorePhotos() {
-        window.addEventListener('scroll', () => {
-            let page = 1; // E đặt biến ở đây để khi scroll sẽ không thay đổi giá trị mặc định của page khi search và load ảnh 
-            if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight) {
-                page++;
-                this.getPhotos();
+    // Function for handle DOM events
+    initEvents() {
+        const _this = this;
+
+        // Listen onkeyup event on search input
+        input.onkeyup = (event) => {
+           event.keyCode === 13 && _this.renderPhotos();
+           _this.isScroll = false;
+           _this.page = 1;
+        }
+
+        // Listen click on search button event
+        searchButton.onclick = () => {
+            _this.isScroll = false;
+            _this.page = 1;
+            _this.renderPhotos();
+        }
+
+        // Listen scroll view event
+        window.onscroll = () => {
+            let contentHeight = html.scrollHeight;
+            let scrollHeight = window.scrollY;
+            let viewHeight = window.innerHeight;
+
+            if (viewHeight + scrollHeight >= contentHeight) {
+                (_this.page)++;
+                _this.renderPhotos();
             }
-        })
+        }
+
     },
     start() {
-        this.getPhotos(); 
+        this.renderPhotos();
 
-        this.handleLoadMorePhotos();
+        this.initEvents();
+
     }
 }
 
