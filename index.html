@@ -11,7 +11,7 @@
     </head>
     <body>
         <div class="app">
-            <form action="" class="form-search" onsubmit="event.defaultPrevented()">
+            <div class="form-search">
                 <label for="search" class="form-search__label">
                     <Span class="form-search__label-span">U</Span>
                     <Span class="form-search__label-span">N</Span>
@@ -28,16 +28,19 @@
                         </span>
                         <input type="text" placeholder="Please enter something..." 
                             class="form-search__input" id="search"
-                            onkeyup="event.keyCode === 13 && searchPhotos()"
                         >
                     </div>
-                    <button onclick="searchPhotos()" class="search-button">Search</button>
+                    <button class="search-button">Search</button>
+                    <span class="message"></span>
                 </div>
-            </form>
+            </div>
+            <div class="progress">
+                <div class="bar"></div>
+            </div>
             <div class="view">
                 <div class="title"></div>
                 <div class="wrapper" id="wrapper">
-                    
+      
                 </div>
             </div>
         </div>
